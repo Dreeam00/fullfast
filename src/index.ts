@@ -17,26 +17,29 @@ export class QCollection extends Array<Element> {
 
   add(s: string) {
     const { id, classes } = p(s);
-    return this.forEach(el => {
+    this.forEach(el => {
       if (id) el.id = id;
       classes.forEach(c => el.classList.add(c));
-    }) || this;
+    });
+    return this;
   }
 
   rm(s: string) {
     const { id, classes } = p(s);
-    return this.forEach(el => {
+    this.forEach(el => {
       if (id && el.id === id) el.id = '';
       classes.forEach(c => el.classList.remove(c));
-    }) || this;
+    });
+    return this;
   }
 
   set(s: string) {
     const { id, classes } = p(s);
-    return this.forEach(el => {
+    this.forEach(el => {
       if (id) el.id = id;
       el.className = classes.join(' ');
-    }) || this;
+    });
+    return this;
   }
 
   fx(a: any, o?: any): Promise<this> {
@@ -58,38 +61,44 @@ export class QCollection extends Array<Element> {
 
   text(v?: string): any {
     if (v === undefined) return this[0]?.textContent || '';
-    return this.forEach(e => e.textContent = v) || this;
+    this.forEach(e => e.textContent = v);
+    return this;
   }
 
   appendTo(t: any) {
     const p = typeof t === 'string' ? document.querySelector(t) : (t[0] || t);
-    return this.forEach(e => p?.appendChild(e)) || this;
+    this.forEach(e => p?.appendChild(e));
+    return this;
   }
 
   html(v?: string): any {
     if (v === undefined) return this[0]?.innerHTML || '';
-    return this.forEach(e => e.innerHTML = v) || this;
+    this.forEach(e => e.innerHTML = v);
+    return this;
   }
 
   attr(n: string, v?: any): any {
     if (arguments.length === 1) return this[0]?.getAttribute(n);
-    return this.forEach(e => (v == null || v === false) ? e.removeAttribute(n) : e.setAttribute(n, v)) || this;
+    this.forEach(e => (v == null || v === false) ? e.removeAttribute(n) : e.setAttribute(n, v));
+    return this;
   }
 
   on(t: string, h: any) {
-    return this.forEach(e => {
+    this.forEach(e => {
       if (t === 'hover') {
         e.addEventListener('mouseenter', ev => h(e, true, ev));
         e.addEventListener('mouseleave', ev => h(e, false, ev));
       } else e.addEventListener(t, ev => h(e, ev));
-    }) || this;
+    });
+    return this;
   }
 
   ui(s: any) {
     const kMap: any = { bg: 'background', text: 'color' };
-    return this.forEach((e: any) => {
+    this.forEach((e: any) => {
       for (const k in s) e.style[kMap[k] || k] = s[k];
-    }) || this;
+    });
+    return this;
   }
 
   bind(s: any, m: any, mode: string) {

@@ -1,54 +1,61 @@
-# 🚀 QueryFast v2.0
+# 🚀 flexweb
 
-**「Q は DOM カーソルであり、el は DOM を生む唯一の構文である。」**
+**「軽量・高速・モジュール化された現代の DOM エコシステム。」**
 
-QueryFast は、超軽量・高速・直観的な DOM 操作ライブラリです。
-仮想 DOM を使わず、ブラウザのネイティブ機能を最大限に活かした「最小・最速」の UI 開発体験を提供します。
+`flexweb` は、仮想 DOM を介さない直接的な DOM 操作と、原子的なコンポーネント設計を融合させた、超軽量・高速な UI 開発フレームワークです。
 
 ## 🌟 特徴
 
-- ⚡ **Zero Overhead**: 仮想 DOM なし。直接 DOM を操作するため、極めて高速です。
-- 🧱 **DOM Cursor Philosophy**: `Q` は常に DOM を指すカーソル。迷うことなく操作できます。
-- 🏗 **Single Syntax**: `el()` だけで要素生成もコンポーネント呼び出しも完結します。
-- ⚛️ **Atomic Identity**: `add()`, `rm()`, `set()` でクラスや ID を自在に操作。
-- ✨ **Emotional UI**: `.fx()` メソッドで JS 定義のアニメーションを atomic に実行。
-- 🔄 **Simple Reactive**: 組み込みの状態管理で、値の変化を即座に UI に反映。
-- 📦 **Ultra Light**: 依存関係ゼロ、**1.5KB gzipped** の極小エンジン。
+- ⚡ **Zero Overhead**: 仮想 DOM なし。ブラウザネイティブの速度を最大限に活かします。
+- 🧱 **Modular Architecture**: 必要な機能だけをインポート可能。エコシステム全体を軽量に保ちます。
+- 🏗 **DOM Cursor Philosophy**: `Q` は常に DOM を指すカーソル。迷うことなく操作できます。
+- ✨ **Atomic Identity**: クラスや ID の操作を原子的に実行し、UI を直感的に制御します。
+- 🔄 **Reactive Core**: 組み込みの状態管理で、値の変化を即座に UI へ反映。
+- 📦 **Ultra Light**: 依存関係ゼロ。小分けになったモジュールで必要な分だけを利用可能です。
 
 ## 🛠 インストール
 
 ```bash
-npm install queryfast
+npm install flexweb
 ```
 
-## 🚀 クイックスタート (v2.0)
+## 🚀 クイックスタート
 
 ```javascript
-import { Q } from 'queryfast';
+import { Q } from 'flexweb';
 
-// 1. Q で DOM カーソルを取得
+// 1. DOM カーソルの取得
 const app = Q("#app");
 
-// 2. el() で要素を生成して append
-const counter = app.el("div.counter");
+// 2. DOM の生成
+const container = app.el("div.container");
 
 // 3. リアクティブな状態
 const count = Q.state(0);
 
 // 4. コンポーネントの定義
-function countDisplay(parent, state) {
-  return parent.el("p")
-    .bind(state, v => `Count: ${v}`, 'text');
+function Counter(parent, state) {
+  return parent.el("div")
+    .el("p").bind(state, v => `Count: ${v}`, 'text')
+    .parent.el("button").text("+").on("click", () => state.value++);
 }
 
-// 5. コンポーネントの呼び出しとイベント
-counter.el(countDisplay, count);
-counter.el("btn#inc").text("+").on("click", () => count.value++);
+// 5. コンポーネントの呼び出し
+container.el(Counter, count);
 ```
 
-## 📖 API マニュアル
+## 🧩 モジュール構成
 
-詳細なドキュメントは [仕様書.md](./仕様書.md) を参照してください。
+`flexweb` は用途に合わせて機能を分割しています。
+
+- **`flexweb` (Core)**: 基本的な DOM 操作とリアクティブ機能。
+- **`flexweb/base`**: 基盤となるユーティリティ。
+- **`flexweb/rooting`**: SPA を構築するための軽量ルーティング機能。
+- **`flexweb/fx`**: JS ベースのアトミック・アニメーション・エンジン。
+
+## 📖 ドキュメント
+
+詳細な仕様および API リファレンスは [仕様書.md](./仕様書.md) を参照してください。
 
 ## 📜 ライセンス
 
