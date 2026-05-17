@@ -1,6 +1,6 @@
 {
   "name": "fullfast",
-  "version": "3.0.1",
+  "version": "3.1.4",
   "description": "The Modular Web Ecosystem: Ultra-light, no-magic, full-stack frontend framework.",
   "type": "module",
   "main": "./dist/index.js",
@@ -37,7 +37,7 @@
     "type": "git",
     "url": "git+https://github.com/dreeam00/fullfast.git"
   },
-  "homepage": "https://dreeam00.github.io/fullfast/",
+  "homepage": "https://dreeam00.github.io/fullfast/docs",
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@types/node": "^25.7.0",
