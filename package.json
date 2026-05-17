@@ -21,9 +21,9 @@
   ],
   "scripts": {
     "lint": "eslint src/**/*.ts",
-    "test:debug": "vitest run tests/debugsuite/suite.ts",
-    "build": "tsc",
-    "prepublishOnly": "npm run build && vitest run"
+    "test": "vitest run",
+    "build": "tsc && esbuild src/index.ts --bundle --minify --outfile=dist/fullfast.min.js --format=iife --global-name=FullFast",
+    "prepublishOnly": "npm run build && npm test"
   },
   "keywords": [
     "ui",
