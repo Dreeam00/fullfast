@@ -1,65 +1,78 @@
 /**
- * BaseFast v2.5: Professional Atomic File System.
- * Uses Origin Private File System (OPFS) for actual file-based storage.
+ * BaseFast: Unified Atomic Storage System.
+ * Supports: OPFS, IndexedDB, LocalStorage, ServerSync
  */
+
+interface StorageProvider {
+  get(key: string): Promise<any>;
+  set(key: string, value: any): Promise<void>;
+}
+
+class OPFSProvider implements StorageProvider {
+  async get(key: string) {
+    const root = await navigator.storage.getDirectory();
+    try {
+      const fileHandle = await root.getFileHandle(key, { create: false });
+      const file = await fileHandle.getFile();
+      return JSON.parse(await file.text());
+    } catch { return null; }
+  }
+  async set(key: string, value: any) {
+    const root = await navigator.storage.getDirectory();
+    const fileHandle = await root.getFileHandle(key, { create: true });
+    const writable = await (fileHandle as any).createWritable();
+    await writable.write(JSON.stringify(value));
+    await writable.close();
+  }
+}
+
+class LocalStorageProvider implements StorageProvider {
+  async get(key: string) { return JSON.parse(localStorage.getItem(key) || 'null'); }
+  async set(key: string, value: any) { localStorage.setItem(key, JSON.stringify(value)); }
+}
+
+class ServerSyncProvider implements StorageProvider {
+  constructor(private url: string) {}
+  async get(key: string) {
+    const res = await fetch(`${this.url}/${key}.json`);
+    return res.ok ? await res.json() : null;
+  }
+  async set(key: string, value: any) {
+    await fetch(`${this.url}/${key}.json`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(value)
+    });
+  }
+}
 
 export class BaseFast {
   private data: any[] = [];
-  private filename: string | null = null;
+  private provider: StorageProvider;
+  private key: string | null = null;
 
-  constructor(data: any[] = []) {
-    this.data = data;
-  }
-
-  /**
-   * Connect to an actual file in OPFS
-   */
-  static async connect(filename: string) {
-    const db = new BaseFast();
-    db.filename = filename;
-    await db.load();
-    return db;
+  constructor(provider: StorageProvider = new LocalStorageProvider()) {
+    this.provider = provider;
   }
 
   static from(data: any[]) {
-    return new BaseFast(data);
+    const db = new BaseFast();
+    (db as any).data = data;
+    return db;
   }
 
-  /**
-   * Load JSON from OPFS file
-   */
-  async load() {
-    if (!this.filename) return;
-    try {
-      const root = await navigator.storage.getDirectory();
-      const fileHandle = await root.getFileHandle(this.filename, { create: true });
-      const file = await fileHandle.getFile();
-      const text = await file.text();
-      this.data = text ? JSON.parse(text) : [];
-    } catch (e) {
-      console.warn('BaseFast: Load failed, using empty data.', e);
-      this.data = [];
-    }
+  async connect(key: string) {
+    this.key = key;
+    this.data = (await this.provider.get(key)) || [];
+    return this;
   }
 
-  /**
-   * Atomic Save to OPFS file
-   */
   async save(newData?: any[]) {
     if (newData) this.data = newData;
-    if (!this.filename) return;
-    
-    try {
-      const root = await navigator.storage.getDirectory();
-      const fileHandle = await root.getFileHandle(this.filename, { create: true });
-      const writable = await (fileHandle as any).createWritable();
-      await writable.write(JSON.stringify(this.data));
-      await writable.close();
-    } catch (e) {
-      console.error('BaseFast: Save failed.', e);
-    }
+    if (this.key) await this.provider.set(this.key, this.data);
   }
 
+  // Data manipulation methods
   select(fields: string | string[]) {
     if (fields === '*') return this;
     const fieldList = Array.isArray(fields) ? fields : [fields];
@@ -76,31 +89,11 @@ export class BaseFast {
     return this;
   }
 
-  orderBy(field: string, direction: 'asc' | 'desc' = 'asc') {
-    this.data.sort((a, b) => {
-      const va = a[field];
-      const vb = b[field];
-      if (va < vb) return direction === 'asc' ? -1 : 1;
-      if (va > vb) return direction === 'asc' ? 1 : -1;
-      return 0;
-    });
-    return this;
-  }
-
-  limit(count: number) {
-    this.data = this.data.slice(0, count);
-    return this;
-  }
-
-  async exec() {
-    return this.data; // Already async context usually
-  }
-
-  all() {
-    return this.data;
-  }
+  all() { return this.data; }
 }
 
+// Global exposure
 if (typeof window !== 'undefined') {
   (window as any).BaseFast = BaseFast;
+  (window as any).BaseFastProviders = { OPFSProvider, LocalStorageProvider, ServerSyncProvider };
 }

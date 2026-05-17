@@ -15,6 +15,7 @@ export class QCollection extends Array<Element> {
     return a(this, ...args);
   }
 
+
   add(s: string) {
     const { id, classes } = p(s);
     this.forEach(el => {
