@@ -1,6 +1,6 @@
 {
   "name": "fullfast",
-  "version": "3.1.4",
+  "version": "3.1.5",
   "description": "The Modular Web Ecosystem: Ultra-light, no-magic, full-stack frontend framework.",
   "type": "module",
   "main": "./dist/index.js",
