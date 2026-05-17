@@ -1,8 +1,8 @@
-# 🚀 flexweb
+# 🚀 fullfast
 
 **「軽量・高速・モジュール化された現代の DOM エコシステム。」**
 
-`flexweb` は、仮想 DOM を介さない直接的な DOM 操作と、原子的なコンポーネント設計を融合させた、超軽量・高速な UI 開発フレームワークです。
+`fullfast` は、仮想 DOM を介さない直接的な DOM 操作と、原子的なコンポーネント設計を融合させた、超軽量・高速な UI 開発フレームワークです。
 
 ## 🌟 特徴
 
@@ -16,13 +16,13 @@
 ## 🛠 インストール
 
 ```bash
-npm install flexweb
+npm install fullfast
 ```
 
 ## 🚀 クイックスタート
 
 ```javascript
-import { Q } from 'flexweb';
+import { Q } from 'fullfast';
 
 // 1. DOM カーソルの取得
 const app = Q("#app");
@@ -46,12 +46,12 @@ container.el(Counter, count);
 
 ## 🧩 モジュール構成
 
-`flexweb` は用途に合わせて機能を分割しています。
+`fullfast` は用途に合わせて機能を分割しています。
 
-- **`flexweb` (Core)**: 基本的な DOM 操作とリアクティブ機能。
-- **`flexweb/base`**: 基盤となるユーティリティ。
-- **`flexweb/rooting`**: SPA を構築するための軽量ルーティング機能。
-- **`flexweb/fx`**: JS ベースのアトミック・アニメーション・エンジン。
+- **`fullfast` (Core)**: 基本的な DOM 操作とリアクティブ機能。
+- **`fullfast/base`**: 基盤となるユーティリティ。
+- **`fullfast/rooting`**: SPA を構築するための軽量ルーティング機能。
+- **`fullfast/fx`**: JS ベースのアトミック・アニメーション・エンジン。
 
 ## 📖 ドキュメント
 

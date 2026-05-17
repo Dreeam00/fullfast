@@ -3,19 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QueryFast Ecosystem SPA</title>
+    <title>fullfast SPA</title>
 </head>
 <body>
 
 <div id="app"></div>
 
-<!-- Entire Stack: Core + Rooting + FX -->
-<script src="./dist/queryfast.min.js"></script>
-<script src="./dist/rootingfast.min.js"></script>
-<script src="./dist/fx.min.js"></script>
+<!-- Module imports -->
+<script type="module">
+    import { Q } from './dist/index.js';
+    import { RootingFast } from './dist/rooting.js';
+    import { FX } from './dist/fx.js';
 
-<script>
-    const { Q, RootingFast, FX } = window;
+    window.Q = Q;
+    window.RootingFast = RootingFast;
+    window.FX = FX;
 
     // --- 1. Global Setup ---
     Q.global(`
@@ -31,7 +33,6 @@
     `);
 
     // --- 2. Components ---
-
     function Layout(parent, contentFn, ...args) {
         const root = parent.el("div");
         const nav = root.el("div.nav-bar");
@@ -43,17 +44,13 @@
     }
 
     // --- 3. Pages ---
-
     async function HomePage(ctx, scp) {
         const app = Q("#app");
         app[0].innerHTML = "";
         
         app.el(Layout, (page) => {
-            const h = page.el("h1").text("RootingFast Backbone");
-            page.el("p").text("This page was routed with RootingFast. No magic, just explicit Page functions.");
-            
-            // FX Entry
-            FX.motion.slideIn(h, { y: 30 });
+            const h = page.el("h1").text("fullfast Backbone");
+            page.el("p").text("This page is running with fullfast modules.");
         });
     }
 
@@ -63,20 +60,9 @@
 
         app.el(Layout, (page) => {
             page.el("h1").text("Atomic Dashboard");
-            
-            const stats = page.el("div").ui({ display: "flex", gap: "10px", marginTop: "20px" });
-            
-            // Atomic State sharing through 'scp'
             if (!scp.visits) scp.visits = Q.state(0);
             scp.visits.value++;
-
-            stats.el("div").ui({ background: "#fff", padding: "20px", borderRadius: "12px", border: "1px solid #ddd" })
-                .el("spn").bind(scp.visits, v => v, 'text').ui({ fontSize: "2rem", fontWeight: "800", display: "block" })
-                .parent.el("spn").text("Visits this session").ui({ fontSize: "0.8rem", opacity: "0.5" });
-
-            page.el("btn").text("Manual Reset")
-                .ui({ marginTop: "20px", padding: "10px 20px", background: "#0070f3", color: "#fff", border: "none", borderRadius: "8px", cursor: "pointer" })
-                .on("click", () => scp.visits.value = 0);
+            page.el("div").text(`Visits: `).bind(scp.visits, v => v, 'text');
         });
     }
 
@@ -85,7 +71,6 @@
         "/": HomePage,
         "/dashboard": DashboardPage
     });
-
 </script>
 </body>
 </html>
