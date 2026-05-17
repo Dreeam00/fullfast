@@ -131,7 +131,7 @@ const p = (s: string) => {
   return parsed;
 };
 
-const tMap: any = { sec: 'section', hdr: 'header', btn: 'button', art: 'article', spn: 'span', inp: 'input' };
+const tMap: any = { sec: 'section', hdr: 'header', btn: 'button', art: 'article', spn: 'span', inp: 'input', ftr: 'footer' };
 
 Q.add = (s: string) => {
   const { tag, id, classes } = p(s);

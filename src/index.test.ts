@@ -67,11 +67,11 @@ describe('QueryFast v2.0', () => {
   });
 
   describe('Backward Compatibility / Other methods', () => {
-    it('text() and content() should be equivalent', () => {
+    it('text() should work', () => {
       const q = Q.add('div');
       q.text('test');
-      expect(q.content()).toBe('test');
-      q.content('test2');
+      expect(q.text()).toBe('test');
+      q.text('test2');
       expect(q.text()).toBe('test2');
     });
 
