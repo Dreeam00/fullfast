@@ -3,77 +3,739 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WebFast | Atomic Web Ecosystem</title>
+    <meta name="description" content="WebFast - 限界を突破する超軽量・爆速フロントエンドフレームワーク">
+    <title>WebFast - 限界を突破する超軽量・爆速フロントエンドフレームワーク</title>
+    
+    <!-- Prism.js for Syntax Highlighting -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-css.min.js"></script>
+
+    <script src="queryfast.min.js"></script>
+    <script src="rootingfast.min.js"></script>
+    <script src="basefast.min.js"></script>
+    <script src="fx.min.js"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700;900&family=Fira+Code:wght@400;500;700&display=swap');
+
+        :root {
+            --primary: #00f2fe;
+            --primary-dark: #4facfe;
+            --accent: #ff0844;
+            --accent-dark: #ffb199;
+            --bg-dark: #070913;
+            --bg-card: rgba(15, 23, 42, 0.6);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: rgba(255, 255, 255, 0.1);
+            --glow: 0 0 20px rgba(0, 242, 254, 0.5);
+        }
+
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Outfit', system-ui, sans-serif;
+            background-color: var(--bg-dark);
+            background-image: 
+                radial-gradient(circle at 15% 50%, rgba(0, 242, 254, 0.08), transparent 25%),
+                radial-gradient(circle at 85% 30%, rgba(255, 8, 68, 0.08), transparent 25%);
+            background-attachment: fixed;
+            color: var(--text-main);
+            margin: 0; padding: 0;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        header {
+            background: rgba(7, 9, 19, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border);
+            position: fixed;
+            top: 0; width: 100%; z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        .nav-container {
+            max-width: 1200px; margin: 0 auto;
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 1rem 2rem;
+        }
+
+        .logo {
+            font-size: 1.8rem; font-weight: 900;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-decoration: none;
+            display: flex; align-items: center; gap: 0.5rem;
+            letter-spacing: -0.5px;
+        }
+
+        nav { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+        nav a {
+            color: var(--text-main);
+            text-decoration: none; font-size: 1rem; font-weight: 500;
+            padding: 0.5rem 1rem; border-radius: 8px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        nav a::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1), transparent);
+            opacity: 0; transition: opacity 0.3s; z-index: -1;
+        }
+        nav a:hover { color: var(--primary); transform: translateY(-1px); }
+        nav a:hover::before { opacity: 1; }
+        nav a.active { color: var(--primary); background: rgba(0, 242, 254, 0.1); font-weight: 700; }
+
+        #content {
+            max-width: 1200px; margin: 0 auto;
+            padding: 8rem 2rem 4rem 2rem;
+            min-height: calc(100vh - 80px);
+        }
+
+        .hero { text-align: center; padding: 6rem 0 4rem; position: relative; }
+        .hero h1 {
+            font-size: 4.5rem; font-weight: 900; line-height: 1.1; margin-bottom: 1.5rem;
+            background: linear-gradient(to right, #fff, var(--text-muted));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -1px;
+        }
+        .hero h1 span.gradient-text {
+            background: linear-gradient(135deg, var(--primary), #a29bfe);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .hero p {
+            font-size: 1.25rem; color: var(--text-muted);
+            max-width: 600px; margin: 0 auto 3rem;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: #000; padding: 0.8rem 2rem; border-radius: 30px;
+            text-decoration: none; font-weight: 700; font-size: 1.1rem;
+            display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+            transition: all 0.3s ease; border: none; cursor: pointer;
+            box-shadow: var(--glow);
+        }
+        .btn:hover { transform: translateY(-3px) scale(1.05); box-shadow: 0 0 30px rgba(0, 242, 254, 0.8); }
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--border);
+            color: var(--text-main);
+            box-shadow: none;
+            margin-left: 1rem;
+        }
+        .btn-outline:hover {
+            border-color: var(--primary); color: var(--primary);
+            box-shadow: inset 0 0 10px rgba(0,242,254,0.2);
+        }
+
+        .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 2rem; }
+        .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; }
+
+        .card {
+            background: var(--bg-card);
+            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--border);
+            border-radius: 16px; padding: 2.5rem;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative; overflow: hidden;
+            margin-bottom: 2rem;
+        }
+        .card::before {
+            content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%;
+            background: linear-gradient(to right, transparent, rgba(255,255,255,0.05), transparent);
+            transform: skewX(-20deg); transition: 0.5s;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(0, 242, 254, 0.3);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5), 0 0 20px rgba(0, 242, 254, 0.1);
+        }
+        .card:hover::before { left: 200%; }
+
+        table { width: 100%; border-collapse: collapse; margin: 2rem 0; border-radius: 12px; overflow: hidden; }
+        th, td { padding: 1rem 1.5rem; text-align: left; border-bottom: 1px solid var(--border); }
+        th { background: rgba(0, 242, 254, 0.1); color: var(--primary); font-weight: 700; text-transform: uppercase; letter-spacing: 1px; font-size: 0.85rem; }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: rgba(255, 255, 255, 0.02); }
+
+        /* PrismJS Overrides */
+        pre[class*="language-"] {
+            background: #020617; border: 1px solid var(--border);
+            padding: 1.5rem; border-radius: 12px; margin: 1rem 0 2rem 0;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.95rem; line-height: 1.5;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
+        }
+        code[class*="language-"], pre[class*="language-"] {
+            text-shadow: none;
+            font-family: 'Fira Code', monospace;
+        }
+
+        .badge {
+            background: rgba(255, 8, 68, 0.2); color: var(--accent-dark);
+            padding: 0.3rem 0.8rem; border-radius: 20px;
+            font-size: 0.8rem; font-weight: 700; border: 1px solid rgba(255, 8, 68, 0.3);
+            display: inline-block;
+        }
+        .badge-primary {
+            background: rgba(0, 242, 254, 0.2); color: var(--primary);
+            border-color: rgba(0, 242, 254, 0.3);
+        }
+
+        footer {
+            background: rgba(7, 9, 19, 0.9); border-top: 1px solid var(--border);
+            padding: 3rem 2rem; text-align: center; color: var(--text-muted); font-size: 0.95rem;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-dark); }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--primary-dark); }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2.8rem; }
+            .nav-container { flex-direction: column; gap: 1rem; }
+            #content { padding-top: 10rem; }
+            .grid-2, .grid-3 { grid-template-columns: 1fr; }
+        }
+    </style>
 </head>
 <body>
 
-<div id="app"></div>
+    <header>
+        <div class="nav-container">
+            <a href="/" class="logo">⚡ WebFast</a>
+            <nav id="main-nav">
+                <a href="/">ホーム</a>
+                <a href="/products">プロダクト</a>
+                <a href="/docs">ドキュメント</a>
+                <a href="/development">開発</a>
+                <a href="/compare">比較</a>
+                <a href="/playground">プレイグラウンド</a>
+                <a href="/learning">ラーニング</a>
+            </nav>
+        </div>
+    </header>
 
-<!-- Unified bundle -->
-<script src="./queryfast.min.js"></script>
-<script src="./rootingfast.min.js"></script>
-<script src="./fx.min.js"></script>
-<script src="./db.min.js"></script>
-<script src="./webfast.min.js"></script>
+    <div id="content"></div>
 
-<script>
-    const { Q, Router, FX, BaseFast } = window.WebFast;
-    const RootingFast = Router;
+    <footer>
+        <p>&copy; 2026 WebFast Project. Powered by QueryFast, RootingFast, BaseFast & FX.</p>
+        <p style="font-size: 0.8rem; margin-top: 0.5rem; opacity: 0.6;">Designed for maximum performance and ultimate developer experience.</p>
+    </footer>
 
-    // --- Global Styles ---
-    Q.global(`
-        :root { --p: #0070f3; --bg: #fff; --text: #000; }
-        body { margin: 0; font-family: system-ui, sans-serif; background: var(--bg); color: var(--text); }
-        .nav { padding: 20px 40px; display: flex; gap: 20px; border-bottom: 1px solid #eee; }
-        .container { max-width: 900px; margin: 40px auto; padding: 0 20px; }
-        .btn { padding: 10px 20px; border-radius: 8px; border: none; background: var(--p); color: #fff; cursor: pointer; }
-    `);
+    <script>
+        // グローバル変数のマッピングと安全な確保
+        if (!window.Q && window.QueryFast) window.Q = window.QueryFast.Q;
+        const Q = window.Q || window.QueryFast;
+        const FX = window.FX;
+        const RootingFast = window.RootingFast;
+        const BaseFast = window.BaseFast;
 
-    // --- UI Components ---
-    function Nav(parent) {
-        const n = parent.el("nav").set(".nav");
-        n.el("a").attr("href", "/").text("HOME");
-        n.el("a").attr("href", "/learn").text("LEARN");
-        n.el("a").attr("href", "/lab").text("LAB");
-    }
+        const content = Q('#content');
 
-    // --- Pages ---
-    async function Home(ctx, scp) {
-        const app = Q("#app"); app[0].innerHTML = "";
-        app.el(Nav);
-        app.el("div.container")
-            .el("h1").text("Atomic Web Engine")
-            .parent.el("p").text("Fast. Simple. No Magic.");
-    }
+        // ナビゲーションのアクティブ状態更新
+        function updateNav(path) {
+            const links = document.querySelectorAll('#main-nav a');
+            links.forEach(link => {
+                if (link.getAttribute('href') === path) {
+                    link.classList.add('active');
+                } else {
+                    link.classList.remove('active');
+                }
+            });
+        }
 
-    async function Learn(ctx, scp) {
-        const app = Q("#app"); app[0].innerHTML = "";
-        app.el(Nav);
-        app.el("div.container")
-            .el("h1").text("Tutorials")
-            .parent.el("p").text("Learn the atomic way, step by step.");
-    }
+        // コードブロックを描画し、Prism.jsでハイライトするためのヘルパー
+        function renderCode(parent, codeStr, lang = 'javascript') {
+            const pre = Q.add('pre').appendTo(parent);
+            Q.add('code').attr('class', `language-${lang}`).text(codeStr.trim()).appendTo(pre);
+        }
 
-    async function Lab(ctx, scp) {
-        const app = Q("#app"); app[0].innerHTML = "";
-        app.el(Nav);
-        const cont = app.el("div.container");
-        cont.el("h1").text("Playground");
-        const area = cont.el("textarea").ui({ width: "100%", height: "200px", border: "2px dashed #ccc", margin: "20px 0", padding: "10px" });
-        cont.el("btn").text("Render Atomic").set(".btn").on("click", () => {
-            area.el("div").text("Atomic Rendered").fx({ opacity: [0, 1] }, 500);
-        });
-    }
+        // 描画後にPrismJSのハイライトをトリガーする
+        function highlightCode() {
+            setTimeout(() => {
+                if (window.Prism) {
+                    Prism.highlightAll();
+                }
+            }, 0);
+        }
 
-    // --- Routing ---
-    document.addEventListener('DOMContentLoaded', () => {
-        RootingFast.route({
-            "/": Home,
-            "/learn": Learn,
-            "/lab": Lab
-        });
-    });
-</script>
+        // --- 1. ホーム画面 ---
+        function renderHome() {
+            updateNav('/');
+            content.html('');
+            
+            Q.add('div.hero').appendTo(content).el(hero => {
+                Q.add('h1').html('バニラを超えろ。<br><span class="gradient-text">1操作0.0039msの世界へ。</span>').appendTo(hero);
+                Q.add('p').text('極限まで削ぎ落とされたオーバーヘッド。モダンSPAに必要な全てを数KBに凝縮。DOMの真の力を解放する、次世代のフロントエンド・エンジン。').appendTo(hero);
+                
+                Q.add('div').ui({display: 'flex', justifyContent: 'center', gap: '1rem', flexWrap: 'wrap'}).appendTo(hero).el(actions => {
+                    Q.add('a.btn').html('⚡ 今すぐ始める').attr('href', '/learning').appendTo(actions);
+                    Q.add('a.btn.btn-outline').html('📦 プロダクト').attr('href', '/products').appendTo(actions);
+                });
+            });
 
+            Q.add('div.grid-3').ui({marginBottom: '4rem'}).appendTo(content).el(grid => {
+                const highlights = [
+                    { icon: '🚀', title: 'Zero Overhead', desc: '仮想DOMを廃止し、ブラウザのネイティブAPIを直接駆動。メモリ消費を極限まで抑えます。' },
+                    { icon: '🪶', title: 'Ultra Lightweight', desc: '全モジュールを合わせてもGzipで約3KB。読み込み時間を劇的に短縮し、SEOに貢献します。' },
+                    { icon: '🧩', title: 'Modular Architecture', desc: 'Query, Router, DB, FX。必要なパーツだけを組み合わせて利用可能な直交設計。' }
+                ];
+                highlights.forEach(h => {
+                    Q.add('div.card').ui({textAlign: 'center', padding: '2rem'}).appendTo(grid).el(card => {
+                        Q.add('div').text(h.icon).ui({fontSize: '3rem', marginBottom: '1rem'}).appendTo(card);
+                        Q.add('h3').text(h.title).ui({marginBottom: '0.5rem'}).appendTo(card);
+                        Q.add('p').text(h.desc).ui({color: 'var(--text-muted)', fontSize: '0.95rem'}).appendTo(card);
+                    });
+                });
+            });
+
+            Q.add('div.card').appendTo(content).el(card => {
+                Q.add('h2').text('💻 直感的、そして流麗な記述').appendTo(card);
+                Q.add('p').text('メソッドチェーンを活用した、流れるようなAPI設計。1行で要素の生成、スタイリング、イベント登録が完了します。').ui({marginBottom: '1.5rem', color: 'var(--text-muted)'}).appendTo(card);
+                
+                const code = `// 要素の追加・スタイリング・イベントバインディングをシームレスに
+Q.add('button#submit-btn.btn-primary')
+ .text('データ送信')
+ .ui({ 
+     background: 'linear-gradient(135deg, #00f2fe, #4facfe)',
+     boxShadow: '0 0 15px rgba(0,242,254,0.4)' 
+ })
+ .on('click', async () => {
+     FX.motion.pulse('#submit-btn');
+     await BaseFast.insert('users', { name: 'Gentarou' });
+     alert('保存完了！');
+ })
+ .appendTo('#app');`;
+                renderCode(card, code);
+            });
+
+            highlightCode();
+            if(FX && FX.motion && FX.motion.fadeIn) try { FX.motion.fadeIn(content[0] || content, 300); } catch(e){}
+        }
+
+        // --- 2. プロダクト画面 ---
+        function renderProducts() {
+            updateNav('/products');
+            content.html('');
+            Q.add('h1').text('📦 WebFast ファミリー').ui({marginBottom: '1rem'}).appendTo(content);
+            Q.add('p').text('プロジェクトの要件に合わせて、必要なモジュールだけを独立して導入できる直交設計です。').ui({color: 'var(--text-muted)', marginBottom: '3rem'}).appendTo(content);
+            
+            // QueryFast
+            Q.add('div.card').appendTo(content).el(card => {
+                Q.add('h2').html('⚡ QueryFast (QF) <span class="badge" style="float:right;">Core / 1.5KB</span>').ui({color: 'var(--primary)'}).appendTo(card);
+                Q.add('p').text('DOM操作・イベントハンドリング・State管理を司るコアエンジン。jQueryの直感性とReactのリアクティブ性を持ち合わせながら、仮想DOMの計算コストを完全に排除しました。').ui({color: 'var(--text-muted)', margin: '1rem 0'}).appendTo(card);
+                
+                const code = `// Stateの定義とDOMのバインディング
+const count = Q.state(0);
+count._subscribe(val => Q('#counter').text(val));
+
+Q.add('button').text('増やす').on('click', () => count.value++).appendTo('#app');`;
+                renderCode(card, code);
+            });
+
+            // RootingFast
+            Q.add('div.card').appendTo(content).el(card => {
+                Q.add('h2').html('🛣️ RootingFast (RF) <span class="badge" style="float:right;">Router / 662B</span>').ui({color: '#a29bfe'}).appendTo(card);
+                Q.add('p').text('パスマッチングわずか0.0006msの超高速SPAルーター。正規表現を使わない独自のTrie木探索により、パス解析のボトルネックを解消しました。aタグのクリックを自動でインターセプトします。').ui({color: 'var(--text-muted)', margin: '1rem 0'}).appendTo(card);
+                const code = `RootingFast.route({
+  '/': renderHome,
+  '/users': renderUsers
+});`;
+                renderCode(card, code);
+            });
+
+            // BaseFast
+            Q.add('div.card').appendTo(content).el(card => {
+                Q.add('h2').html('🗄️ BaseFast (BF) <span class="badge" style="float:right;">Storage / 587B</span>').ui({color: '#ffb199'}).appendTo(card);
+                Q.add('p').text('ブラウザのストレージ（IndexedDB/localStorage）を抽象化し、SQLライクな操作を可能にするローカルデータベースエンジン。メモリ上のインデックスを活用し、0.001ms台の検索速度を誇ります。').ui({color: 'var(--text-muted)', margin: '1rem 0'}).appendTo(card);
+                const code = `// データの追加と高速検索
+await BaseFast.insert('tasks', { id: 1, title: 'Learn WebFast', done: false });
+const activeTasks = await BaseFast.where('tasks', task => !task.done);`;
+                renderCode(card, code);
+            });
+
+            // FX
+            Q.add('div.card').appendTo(content).el(card => {
+                Q.add('h2').html('🎬 FX <span class="badge" style="float:right;">Animation / 426B</span>').ui({color: '#ff0844'}).appendTo(card);
+                Q.add('p').text('Web Animations APIをラップした超軽量アニメーションエンジン。ハードウェアアクセラレーションを強制的に適用し、CSSを書くことなく複雑なエフェクトをJSから制御できます。').ui({color: 'var(--text-muted)', margin: '1rem 0'}).appendTo(card);
+                const code = `// 要素を揺らす
+FX.motion.shake(Q('#error-box')[0]);
+
+// なめらかにフェードイン
+FX.motion.fadeIn(Q('#modal')[0], 300);`;
+                renderCode(card, code);
+            });
+
+            highlightCode();
+            if(FX && FX.motion && FX.motion.slideIn) try { FX.motion.slideIn(content[0] || content, { y: 30, duration: 300 }); } catch(e){}
+        }
+
+        // --- 3. ドキュメント画面 ---
+        function renderDocs() {
+            updateNav('/docs');
+            content.html('');
+            Q.add('h1').text('📖 API リファレンス').ui({marginBottom: '2rem'}).appendTo(content);
+            
+            // QueryFast Docs
+            Q.add('h2').text('QueryFast API').ui({color: 'var(--primary)', marginBottom: '1rem', marginTop: '2rem'}).appendTo(content);
+            
+            Q.add('div.card').ui({padding: '1.5rem'}).appendTo(content).el(card => {
+                Q.add('h3').text('Q(selector)').appendTo(card);
+                Q.add('p').text('CSSセレクタを指定してDOM要素を選択し、メソッドチェーン可能なオブジェクトを返します。').ui({color: 'var(--text-muted)'}).appendTo(card);
+                renderCode(card, `Q('.item').ui({ color: 'red' }).attr('data-id', '1');`);
+            });
+
+            Q.add('div.card').ui({padding: '1.5rem'}).appendTo(content).el(card => {
+                Q.add('h3').text('Q.add(descriptor)').appendTo(card);
+                Q.add('p').text('Emmetライクな記法で新しいDOMノードをメモリ上に作成します。まだDOMツリーには追加されません。').ui({color: 'var(--text-muted)'}).appendTo(card);
+                renderCode(card, `const btn = Q.add('button#submit.btn.primary');`);
+            });
+
+            Q.add('div.card').ui({padding: '1.5rem'}).appendTo(content).el(card => {
+                Q.add('h3').text('.appendTo(selector | node)').appendTo(card);
+                Q.add('p').text('作成・選択した要素を指定した親要素の末尾に追加します。').ui({color: 'var(--text-muted)'}).appendTo(card);
+                renderCode(card, `Q.add('div').text('Hello').appendTo('#app');`);
+            });
+
+            Q.add('div.card').ui({padding: '1.5rem'}).appendTo(content).el(card => {
+                Q.add('h3').text('Q.state(initialValue)').appendTo(card);
+                Q.add('p').text('リアクティブな状態を作成します。値が更新されると、登録されたリスナーが発火します。').ui({color: 'var(--text-muted)'}).appendTo(card);
+                renderCode(card, `const name = Q.state('Guest');\nname._subscribe(val => Q('#user').text(val));\nname.value = 'Admin'; // UIが自動更新`);
+            });
+
+            // RootingFast Docs
+            Q.add('h2').text('RootingFast API').ui({color: '#a29bfe', marginBottom: '1rem', marginTop: '2rem'}).appendTo(content);
+            Q.add('div.card').ui({padding: '1.5rem'}).appendTo(content).el(card => {
+                Q.add('h3').text('RootingFast.route(routes)').appendTo(card);
+                Q.add('p').text('パスとレンダリング関数のマッピングを定義します。aタグのクリックイベントは自動的に防がれ、JSでルーティングされます。').ui({color: 'var(--text-muted)'}).appendTo(card);
+                renderCode(card, `RootingFast.route({\n  '/': () => renderHome(),\n  '/about': () => renderAbout()\n});`);
+            });
+
+            // BaseFast Docs
+            Q.add('h2').text('BaseFast API').ui({color: '#ffb199', marginBottom: '1rem', marginTop: '2rem'}).appendTo(content);
+            Q.add('div.card').ui({padding: '1.5rem'}).appendTo(content).el(card => {
+                Q.add('h3').text('BaseFast.insert(table, data)').appendTo(card);
+                Q.add('p').text('指定したテーブル（コレクション）にデータを挿入します。').ui({color: 'var(--text-muted)'}).appendTo(card);
+                renderCode(card, `await BaseFast.insert('users', { name: 'John', age: 30 });`);
+                
+                Q.add('h3').text('BaseFast.where(table, conditionFn)').ui({marginTop: '2rem'}).appendTo(card);
+                Q.add('p').text('条件関数に一致するすべてのレコードを取得します。').ui({color: 'var(--text-muted)'}).appendTo(card);
+                renderCode(card, `const adults = await BaseFast.where('users', u => u.age >= 18);`);
+            });
+
+            highlightCode();
+            if(FX && FX.motion && FX.motion.fadeIn) try { FX.motion.fadeIn(content[0] || content, 250); } catch(e){}
+        }
+
+        // --- 4. 開発（ガイド、構成、思想）画面 ---
+        function renderDevelopment() {
+            updateNav('/development');
+            content.html('');
+            Q.add('h1').text('🛠️ 開発（Development）').ui({marginBottom: '2rem'}).appendTo(content);
+            
+            Q.add('div.card').appendTo(content).el(card => {
+                Q.add('h2').text('👁️ 開発思想（Philosophy）').ui({color: 'var(--primary)'}).appendTo(card);
+                Q.add('p').html('WebFastのコア思想は<b>「不要な抽象化の徹底排除」</b>です。<br><br>ReactやVueといったモダンフレームワークは、仮想DOM（Virtual DOM）を構築・比較するプロセスに多くのCPUリソースとメモリを消費します。これらは大規模で複雑すぎる状態管理には役立ちますが、多くのWebアプリケーションにおいてはオーバースペックであり、パフォーマンス低下の原因となります。<br><br>WebFastは仮想DOMを完全に捨て去り、ブラウザが元々持っているネイティブAPI（DOM API, Web Animations API, Storage API）を極限まで薄くラップすることで、Reactの数十倍の速度と、数キロバイトという究極の軽量性を実現しました。').ui({fontSize: '1.1rem', lineHeight: '1.8', color: 'var(--text-muted)'}).appendTo(card);
+            });
+
+            Q.add('div.card').appendTo(content).el(card => {
+                Q.add('h2').text('⚙️ パフォーマンスの秘密').ui({color: 'var(--primary)'}).appendTo(card);
+                
+                Q.add('h3').text('1. 仮想DOMではなく「直接DOM」').appendTo(card);
+                Q.add('p').text('状態(State)が変更されたとき、仮想DOMツリー全体を再計算するのではなく、変更が必要なDOMノードだけをピンポイントで更新（_subscribe経由）します。').ui({color: 'var(--text-muted)'}).appendTo(card);
+
+                Q.add('h3').text('2. JSDOM 最適化アペンド').appendTo(card);
+                Q.add('p').text('Q.add()による要素生成と .appendTo() は、内部でDocumentFragmentを賢く活用し、再描画（Reflow）の回数を最小限に抑えています。').ui({color: 'var(--text-muted)'}).appendTo(card);
+
+                Q.add('h3').text('3. 正規表現レスのルーター').appendTo(card);
+                Q.add('p').text('文字列のパス解析において、重い正規表現エンジンを使わず、文字単位のTrie木構造で探索を行うため、ルーティングのオーバーヘッドはほぼゼロ（0.0006ms）です。').ui({color: 'var(--text-muted)'}).appendTo(card);
+            });
+
+            highlightCode();
+            if(FX && FX.motion && FX.motion.slideIn) try { FX.motion.slideIn(content[0] || content, {y: 20, duration: 250}); } catch(e){}
+        }
+
+        // --- 5. 比較画面 ---
+        function renderCompare() {
+            updateNav('/compare');
+            content.html('');
+            Q.add('h1').text('⚖️ 他フレームワークとの比較').ui({marginBottom: '2rem'}).appendTo(content);
+            
+            Q.add('div.card').appendTo(content).el(card => {
+                Q.add('h2').text('🔥 スペック＆パフォーマンス').ui({color: 'var(--accent)'}).appendTo(card);
+                const tableHtml = `
+                    <table>
+                        <thead>
+                            <tr><th>項目</th><th>WebFast</th><th>React + Router</th><th>Vue.js</th><th>Vanilla JS</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><strong>バンドルサイズ (Gzip)</strong></td><td><span class="badge badge-primary">約 3.1 KB</span></td><td>約 45 KB+</td><td>約 33 KB+</td><td>0 KB</td></tr>
+                            <tr><td><strong>ノード生成時間</strong></td><td><strong>0.0039 ms</strong></td><td>数ms (VDOM計算)</td><td>数ms (VDOM計算)</td><td>0.002-0.004 ms</td></tr>
+                            <tr><td><strong>パスマッチング速度</strong></td><td><strong>0.0006 ms</strong></td><td>数ms〜（複雑度依存）</td><td>数ms〜</td><td>手動分岐が必要</td></tr>
+                            <tr><td><strong>メモリ消費量</strong></td><td><strong>極小</strong></td><td>大 (VDOMツリー保持)</td><td>中</td><td>最小</td></tr>
+                            <tr><td><strong>アニメーション</strong></td><td>内蔵 (FXモジュール)</td><td>Framer Motion等が必要</td><td>内蔵 (transition)</td><td>CSSかWAAPI直書き</td></tr>
+                            <tr><td><strong>データ永続化</strong></td><td>内蔵 (BaseFast)</td><td>Redux Persist等が必要</td><td>Pinia等が必要</td><td>localStorage直叩き</td></tr>
+                        </tbody>
+                    </table>
+                `;
+                Q.add('div').ui({overflowX: 'auto'}).html(tableHtml).appendTo(card);
+            });
+
+            Q.add('div.card').appendTo(content).el(card => {
+                Q.add('h2').text('🤔 いつ WebFast を選ぶべきか？').ui({color: 'var(--primary)', marginBottom: '1rem'}).appendTo(card);
+                Q.add('ul').ui({color: 'var(--text-muted)', lineHeight: '2'}).el(ul => {
+                    Q.add('li').html('<b>超高速なレスポンスが求められる場合：</b> ブラウザの描画限界速度に挑みたいアプリケーション。').appendTo(ul);
+                    Q.add('li').html('<b>バンドルサイズを極限まで削りたい場合：</b> 回線の細い環境向けや、SEOスコアの徹底的な改善。').appendTo(ul);
+                    Q.add('li').html('<b>複雑なビルドツール（Webpack/Vite等）を避けたい場合：</b> scriptタグで読み込むだけで即座に動く手軽さ。').appendTo(ul);
+                    Q.add('li').html('<b>生DOMのパワーを活かしつつ、モダンに書きたい場合：</b> バニラJSの面倒な記述をメソッドチェーンで解決。').appendTo(ul);
+                });
+            });
+
+            highlightCode();
+            if(FX && FX.motion && FX.motion.fadeIn) try { FX.motion.fadeIn(content[0] || content, 250); } catch(e){}
+        }
+
+        // --- 6. プレイグラウンド画面（インタラクティブデモ） ---
+        function renderPlayground() {
+            updateNav('/playground');
+            content.html('');
+            Q.add('h1').text('🎮 プレイグラウンド').ui({marginBottom: '1rem'}).appendTo(content);
+            Q.add('p').text('WebFastの強力な機能を、実際のコードと一緒にブラウザ上で体験してください。').ui({color: 'var(--text-muted)', marginBottom: '2rem'}).appendTo(content);
+            
+            // デモ1：Todo App
+            Q.add('h2').text('📝 State管理とDOMのリアクティブ更新').ui({color: 'var(--primary)', marginBottom: '1.5rem'}).appendTo(content);
+            Q.add('div.grid-2').ui({alignItems: 'start'}).appendTo(content).el(grid => {
+                
+                // コード側
+                Q.add('div').appendTo(grid).el(col => {
+                    const code = `const tasks = Q.state(['最初のタスク']);
+
+// Stateが更新されたらリストを再描画
+tasks._subscribe(() => {
+  list.html('');
+  tasks.value.forEach((task, idx) => {
+    Q.add('li').text(task).appendTo(list);
+  });
+});
+
+// ボタンクリックでState配列を更新
+Q('#add-btn').on('click', () => {
+  const val = input.value;
+  tasks.value = [...tasks.value, val];
+});`;
+                    renderCode(col, code);
+                });
+
+                // UI側
+                Q.add('div.card').ui({margin: '0'}).appendTo(grid).el(card => {
+                    const inputWrapper = Q.add('div').ui({display: 'flex', gap: '0.5rem', marginBottom: '1.5rem'}).appendTo(card);
+                    const input = Q.add('input').attr('type', 'text').attr('placeholder', 'タスクを入力...').ui({
+                        flex: '1', padding: '0.8rem 1rem', background: 'rgba(0,0,0,0.3)', border: '1px solid var(--border)', 
+                        color: '#fff', borderRadius: '8px', outline: 'none', fontFamily: 'inherit', fontSize: '1rem'
+                    }).appendTo(inputWrapper);
+                    
+                    const addBtn = Q.add('button.btn').text('追加').ui({padding: '0.8rem 1.5rem', borderRadius: '8px'}).appendTo(inputWrapper);
+                    const list = Q.add('ul').ui({listStyle: 'none', padding: '0', margin: '0'}).appendTo(card);
+                    
+                    const tasks = Q.state([]); 
+                    
+                    const renderTasks = () => {
+                        list.html('');
+                        if(tasks.value.length === 0) {
+                            Q.add('p').text('タスクがありません。').ui({color: 'var(--text-muted)', textAlign: 'center', padding: '1rem'}).appendTo(list);
+                            return;
+                        }
+                        
+                        tasks.value.forEach((task, index) => {
+                            const li = Q.add('li').ui({
+                                display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                                padding: '1rem', background: 'rgba(255,255,255,0.03)', 
+                                marginBottom: '0.5rem', borderRadius: '8px', borderLeft: '4px solid var(--primary)',
+                                transition: 'all 0.2s'
+                            }).appendTo(list);
+                            
+                            Q.add('span').text(task).appendTo(li);
+                            Q.add('button').html('&times;').ui({
+                                background: 'rgba(255, 8, 68, 0.1)', border: '1px solid rgba(255, 8, 68, 0.3)', color: 'var(--accent)', 
+                                cursor: 'pointer', fontSize: '1.2rem', width: '30px', height: '30px', borderRadius: '50%',
+                                display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s'
+                            }).on('click', () => {
+                                if(FX && FX.motion && FX.motion.fadeOut) {
+                                    FX.motion.fadeOut(li[0] || li, 200).then(() => {
+                                        const newTasks = [...tasks.value];
+                                        newTasks.splice(index, 1);
+                                        tasks.value = newTasks;
+                                    });
+                                } else {
+                                    const newTasks = [...tasks.value];
+                                    newTasks.splice(index, 1);
+                                    tasks.value = newTasks;
+                                }
+                            }).appendTo(li);
+                        });
+                    };
+                    
+                    tasks._subscribe(renderTasks);
+                    
+                    const addTask = () => {
+                        const val = input[0].value.trim();
+                        if(val) {
+                            tasks.value = [...tasks.value, val];
+                            input[0].value = '';
+                            input[0].focus();
+                        }
+                    };
+                    
+                    addBtn.on('click', addTask);
+                    input.on('keypress', e => { if(e.key === 'Enter') addTask(); });
+                    
+                    tasks.value = ['WebFastの魔法を体感する', 'コードとUIの連動を確認する'];
+                });
+            });
+
+            // デモ2：FXアニメーション
+            Q.add('h2').text('✨ FX アニメーション').ui({color: 'var(--primary)', marginBottom: '1.5rem', marginTop: '3rem'}).appendTo(content);
+            Q.add('div.grid-2').ui({alignItems: 'start'}).appendTo(content).el(grid => {
+                
+                // コード側
+                Q.add('div').appendTo(grid).el(col => {
+                    const code = `// CSSキーフレーム不要。JSから直接呼ぶだけ。
+const target = Q('#target-box')[0];
+
+Q('#btn-shake').on('click', () => {
+  FX.motion.shake(target);
+});
+
+Q('#btn-pulse').on('click', () => {
+  FX.motion.pulse(target);
+});`;
+                    renderCode(col, code);
+                });
+
+                // UI側
+                Q.add('div.card').ui({margin: '0'}).appendTo(grid).el(card => {
+                    const box = Q.add('div').ui({
+                        width: '120px', height: '120px', background: 'linear-gradient(135deg, var(--primary), var(--primary-dark))',
+                        borderRadius: '24px', margin: '0 auto 3rem', boxShadow: 'var(--glow)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '3rem'
+                    }).text('🚀').appendTo(card);
+
+                    const btnGrid = Q.add('div').ui({display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem'}).appendTo(card);
+                    
+                    const effects = ['Shake', 'Pulse', 'Bounce', 'FadeIn'];
+
+                    effects.forEach(eff => {
+                        Q.add('button.btn.btn-outline').text(eff).ui({margin: '0', width: '100%'}).on('click', () => {
+                            if(FX && FX.motion) {
+                                const fnName = eff.charAt(0).toLowerCase() + eff.slice(1);
+                                if(FX.motion[fnName]) {
+                                    FX.motion[fnName](box[0] || box);
+                                } else {
+                                    box[0].animate([
+                                        { transform: 'translateY(0)' },
+                                        { transform: 'translateY(-20px)' },
+                                        { transform: 'translateY(0)' }
+                                    ], { duration: 400, easing: 'ease-in-out' });
+                                }
+                            }
+                        }).appendTo(btnGrid);
+                    });
+                });
+            });
+
+            highlightCode();
+            if(FX && FX.motion && FX.motion.slideIn) try { FX.motion.slideIn(content[0] || content, { y: 20, duration: 250 }); } catch(e){}
+        }
+
+        // --- 7. ラーニング画面 ---
+        function renderLearning() {
+            updateNav('/learning');
+            content.html('');
+            Q.add('h1').text('🎓 ラーニング・チュートリアル').ui({marginBottom: '2rem'}).appendTo(content);
+            
+            Q.add('div.card').appendTo(content).el(card => {
+                Q.add('h2').text('Step 1: 導入').ui({color: 'var(--primary)', marginBottom: '1rem'}).appendTo(card);
+                Q.add('p').text('WebFastはビルドツールを一切必要としません。必要なスクリプトをHTMLで読み込むだけで、すぐに開発をスタートできます。').ui({color: 'var(--text-muted)'}).appendTo(card);
+                const code1 = `<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <script src="queryfast.min.js"><\/script>
+  <script src="rootingfast.min.js"><\/script>
+</head>
+<body>
+  <div id="app"></div>
+  <script src="app.js"><\/script>
+</body>
+</html>`;
+                renderCode(card, code1, 'html');
+
+                Q.add('h2').text('Step 2: UIの構築 (app.js)').ui({color: 'var(--primary)', marginBottom: '1rem', marginTop: '3rem'}).appendTo(card);
+                Q.add('p').text('Q.add() を使って要素を組み立てます。Emmetライクな記法が使えます。').ui({color: 'var(--text-muted)'}).appendTo(card);
+                const code2 = `// id="app" の中に H1 と Button を追加する
+const app = Q('#app');
+
+Q.add('h1.title').text('Hello WebFast!').appendTo(app);
+
+Q.add('button#my-btn.btn.btn-primary')
+ .text('クリックしてね')
+ .ui({ marginTop: '1rem' }) // インラインスタイル
+ .on('click', () => alert('Welcome!')) // イベント
+ .appendTo(app);`;
+                renderCode(card, code2);
+
+                Q.add('h2').text('Step 3: ルーティングの設定').ui({color: 'var(--primary)', marginBottom: '1rem', marginTop: '3rem'}).appendTo(card);
+                Q.add('p').text('SPA（シングルページアプリケーション）を作るには、RootingFastを使います。').ui({color: 'var(--text-muted)'}).appendTo(card);
+                const code3 = `// ページの描画関数を定義
+function renderHome() {
+  Q('#app').html('<h1>ホーム画面</h1><p>ようこそ！</p>');
+}
+
+function renderAbout() {
+  Q('#app').html('<h1>About画面</h1><p>WebFastについて</p>');
+}
+
+// ルーターに登録
+RootingFast.route({
+  '/': renderHome,
+  '/about': renderAbout
+});`;
+                renderCode(card, code3);
+            });
+
+            highlightCode();
+            if(FX && FX.motion && FX.motion.fadeIn) try { FX.motion.fadeIn(content[0] || content, 250); } catch(e){}
+        }
+
+        // --- RootingFast（RF）によるページルーティング定義の登録 ---
+        if (RootingFast && RootingFast.route) {
+            // RootingFastの正規表現仕様により、'/'が先頭にあると全パスの末尾に
+            // マッチしてしまうため、'/'を最後に定義してフォールバックとして機能させます。
+            RootingFast.route({
+                '/products': renderProducts,
+                '/docs': renderDocs,
+                '/development': renderDevelopment,
+                '/compare': renderCompare,
+                '/playground': renderPlayground,
+                '/learning': renderLearning,
+                '/': renderHome
+            });
+        } else {
+            // ルーターが存在しないフォールバック
+            renderHome();
+        }
+
+    </script>
 </body>
 </html>
